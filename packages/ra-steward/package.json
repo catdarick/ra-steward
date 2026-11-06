@@ -1,0 +1,48 @@
+{
+  "name": "ra-steward",
+  "version": "0.1.0",
+  "description": "A React Admin frontend for steward services: pages, tables, forms and actions from the server's describe.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/catdarick/ra-steward.git",
+    "directory": "packages/ra-steward"
+  },
+  "homepage": "https://github.com/catdarick/ra-steward#readme",
+  "bugs": {
+    "url": "https://github.com/catdarick/ra-steward/issues"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "keywords": ["react-admin", "steward", "admin", "data-provider", "react"],
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/package-license.mjs",
+    "prepack": "npm run build"
+  },
+  "peerDependencies": {
+    "@mui/icons-material": "^7.0.0 || ^9.0.0",
+    "@mui/material": "^7.0.0 || ^9.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-admin": "^5.15.0",
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "react-router-dom": "^6.28.1 || ^7.1.1",
+    "@tanstack/react-query": "^5.83.0",
+    "react-hook-form": "^7.66.0"
+  }
+}

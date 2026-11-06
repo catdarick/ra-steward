@@ -1,0 +1,14 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+blob-report/
+coverage/
+.task/
+artifacts/
+*.tgz
+*.tsbuildinfo
+*.log
+.env*
+packages/ra-steward/LICENSE
+/secrets

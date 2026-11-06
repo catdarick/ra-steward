@@ -1,0 +1,19 @@
+{
+  "name": "steward-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mui/icons-material": "9.5.0",
+    "@mui/material": "9.5.0",
+    "ra-steward": "*",
+    "react": "19.3.1",
+    "react-admin": "5.15.5",
+    "react-dom": "19.3.1",
+    "react-router-dom": "7.18.5"
+  }
+}

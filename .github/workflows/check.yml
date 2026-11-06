@@ -1,0 +1,113 @@
+name: Check
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_call:
+    inputs:
+      steward_repository:
+        required: false
+        type: string
+      steward_ref:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      steward_repository:
+        description: Backend repository (owner/name); defaults to STEWARD_REPOSITORY
+        required: false
+        type: string
+      steward_ref:
+        description: Backend branch or commit; defaults to STEWARD_REF or its default branch
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: arduino/setup-task@v2
+      - run: task check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-package
+          path: |
+            artifacts/*.tgz
+            artifacts/SHA256SUMS
+          if-no-files-found: error
+
+  compatibility:
+    needs: frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: arduino/setup-task@v2
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-package
+          path: artifacts
+      - name: React 18, MUI 7 and React Router 6 consumer
+        run: task test:package -- --packed --legacy
+
+  integration:
+    if: ${{ vars.STEWARD_REPOSITORY != '' || inputs.steward_repository != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          path: ra-steward
+      - uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.steward_repository || vars.STEWARD_REPOSITORY }}
+          ref: ${{ inputs.steward_ref || vars.STEWARD_REF }}
+          token: ${{ secrets.STEWARD_CHECKOUT_TOKEN || github.token }}
+          persist-credentials: false
+          path: steward
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: ra-steward/package-lock.json
+      - uses: arduino/setup-task@v2
+      - uses: haskell-actions/setup@v2
+        with:
+          ghc-version: '9.6.5'
+          enable-stack: true
+      - name: Backend tests
+        working-directory: steward
+        run: task test
+      - name: Generate protocol responses through WAI
+        working-directory: steward
+        run: task protocol:fixtures FIXTURE_FILE="$RUNNER_TEMP/steward-contract.json"
+      - name: Validate the frontend against backend responses
+        working-directory: ra-steward
+        env:
+          STEWARD_CONTRACT_FILE: ${{ runner.temp }}/steward-contract.json
+        run: task test:contract
+      - name: Browser integration
+        working-directory: ra-steward
+        env:
+          STEWARD_DIR: ${{ github.workspace }}/steward
+        run: task e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: integration-failure
+          path: |
+            ra-steward/test-results
+            ra-steward/playwright-report
+            ${{ runner.temp }}/steward-contract.json
