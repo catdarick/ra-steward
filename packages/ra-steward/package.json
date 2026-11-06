@@ -1,6 +1,6 @@
 {
   "name": "ra-steward",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A React Admin frontend for steward services: pages, tables, forms and actions from the server's describe.",
   "type": "module",
   "license": "MIT",
@@ -24,13 +24,23 @@
     },
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "sideEffects": false,
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "keywords": ["react-admin", "steward", "admin", "data-provider", "react"],
+  "keywords": [
+    "react-admin",
+    "steward",
+    "admin",
+    "data-provider",
+    "react"
+  ],
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json && node ../../scripts/package-license.mjs",
     "prepack": "npm run build"
